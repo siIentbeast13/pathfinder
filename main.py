@@ -15,6 +15,7 @@ ENUM_USED_PATH = 4
 
 
 screen = pygame.display.set_mode((1000, 1000))
+pygame.display.set_caption("Path finder")
 
 
 gameMap = []
@@ -55,6 +56,11 @@ agentPos = None
 
 
 
+def clearUsedPaths():
+    for xi, xv in enumerate(gameMap):
+        for yi, yv in enumerate(xv):
+            if yv == ENUM_USED_PATH:
+                gameMap[xi][yi] = ENUM_PATH
 
 
 
@@ -141,6 +147,22 @@ mouseDown = False
 while True:
     screen.fill((25, 25, 25))
 
+    if mouseDown:
+        mousePos = pygame.mouse.get_pos()
+        tilePos = (int(mousePos[0]/20), int(mousePos[1]/20))
+
+        gameMap[tilePos[0]][tilePos[1]] = paintmode
+
+        if paintmode == ENUM_AGENT:
+            if agentPos : gameMap[agentPos[0]][agentPos[1]] = ENUM_WALL
+            agentPos = tilePos
+        if paintmode == ENUM_TARGET:
+            if targetPos : gameMap[targetPos[0]][targetPos[1]] = ENUM_WALL
+            targetPos = tilePos
+
+        updateCost()
+
+
     for xi, xv in enumerate(gameMap):
         for yi, yv in enumerate(xv):
             if yv == ENUM_WALL:
@@ -170,6 +192,7 @@ while True:
                         if yv == ENUM_USED_PATH:
                             gameMap[xi][yi] = ENUM_PATH
             elif event.key == pygame.K_RETURN:
+                clearUsedPaths()
                 if threadRunning:
                     print("Pathfinding already running")
                     continue
@@ -181,10 +204,7 @@ while True:
                 thread = Thread(target=startPathfinding)
                 thread.start()
             elif event.key == pygame.K_r:
-                for xi, xv in enumerate(gameMap):
-                    for yi, yv in enumerate(x):
-                        if yv == ENUM_USED_PATH:
-                            gameMap[xi][yi] = ENUM_PATH
+                clearUsedPaths()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
             mouseDown = True
@@ -192,22 +212,5 @@ while True:
             mouseDown = False
 
 
-
-    if mouseDown:
-        mousePos = pygame.mouse.get_pos()
-        tilePos = (int(mousePos[0]/20), int(mousePos[1]/20))
-
-        gameMap[tilePos[0]][tilePos[1]] = paintmode
-
-        if paintmode == ENUM_AGENT:
-            if agentPos : gameMap[agentPos[0]][agentPos[1]] = ENUM_WALL
-            agentPos = tilePos
-        if paintmode == ENUM_TARGET:
-            if targetPos : gameMap[targetPos[0]][targetPos[1]] = ENUM_WALL
-            targetPos = tilePos
-
-        updateCost()
-
-    
 
     pygame.display.update()
