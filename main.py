@@ -53,7 +53,69 @@ paintmode = ENUM_PATH
 targetPos = None
 agentPos = None
 
+
+class Node:
+    def __init__(self, pos, step=0, parent=None):
+        self.pos = pos
+        self.step = step
+        self.cost = step + costMap[pos[0]][pos[1]]
+        self.parent = parent
+    
+    def process(self):
+        explored.append(self.pos)
+
+        neighbours = [] 
+        toExplore = ((0,-1), (0, 1), (1, 0), (-1, 0))
+        for x, y in toExplore:
+                if (x,y) == (0,0): continue
+                exploringPos = (self.pos[0]+x, self.pos[1]+y)
+                if exploringPos[0] < 0 or exploringPos[0] >= 200 or exploringPos[1] < 0 or exploringPos[1] >= 200 : continue
+
+                isWall = not gameMap[exploringPos[0]][exploringPos[1]]
+                if exploringPos in explored or isWall : continue
+
+                neighbours.append(exploringPos)
+
+        print("Neighbours:",neighbours)
+        for neighbour in neighbours:
+            frontier.append(Node(neighbour, self.step+1, self))
+    
+    def __repr__(self):
+        return "Node:"+str(self.pos)
+
+
+
 threadRunning = False
+def startPathfinding():
+    global frontier, explored, found
+    threadRunning = True
+
+    frontier = [Node(agentPos)]
+    explored = []
+
+    targetNode = None
+    while True:
+        print(frontier)
+        selectedNode = frontier[0]
+        node = None
+        i = 0
+        for i, node in enumerate(frontier):
+            if node.cost < selectedNode.cost: selectedNode = node
+        frontier.pop(i)
+        
+        if node.pos == targetPos:
+            targetNode = node
+            break
+        node.process()
+    
+    currentNode = targetNode.parent
+    while currentNode.pos != agentPos:
+        gameMap[currentNode.pos[0]][currentNode.pos[1]] = ENUM_USED_PATH
+        currentNode = currentNode.parent
+
+
+    threadRunning = False
+
 
 while True:
     screen.fill((25, 25, 25))
@@ -86,6 +148,17 @@ while True:
                     for yi, yv in enumerate(xv):
                         if yv == ENUM_USED_PATH:
                             gameMap[xi][yi] = ENUM_PATH
+            elif event.key == pygame.K_RETURN:
+                if threadRunning:
+                    print("The pathfinding is already running")
+                    continue
+                
+                if not (agentPos and targetPos):
+                    print("No agent or target found")
+                    continue
+                    
+                thread = Thread(target=startPathfinding)
+                thread.start()
 
 
         if event.type == pygame.MOUSEBUTTONDOWN:
