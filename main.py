@@ -1,4 +1,5 @@
 import pygame
+import time
 from threading import Thread
 
 
@@ -32,7 +33,6 @@ for x in range(200):
 def updateCost():
     if not targetPos:
         return
-    updatingCost = True
     for xi, xv in enumerate(gameMap):
         for yi, yv in enumerate(xv):
             if yv == ENUM_WALL:
@@ -54,6 +54,10 @@ targetPos = None
 agentPos = None
 
 
+
+
+
+
 class Node:
     def __init__(self, pos, step=0, parent=None):
         self.pos = pos
@@ -72,16 +76,23 @@ class Node:
                 if exploringPos[0] < 0 or exploringPos[0] >= 200 or exploringPos[1] < 0 or exploringPos[1] >= 200 : continue
 
                 isWall = not gameMap[exploringPos[0]][exploringPos[1]]
-                if exploringPos in explored or isWall : continue
+                inFrontier = False
+                for node in frontier:
+                    if inFrontier : break
+                    inFrontier = node.pos == exploringPos
+                if exploringPos in explored or isWall: continue
 
                 neighbours.append(exploringPos)
 
-        print("Neighbours:",neighbours)
         for neighbour in neighbours:
             frontier.append(Node(neighbour, self.step+1, self))
     
     def __repr__(self):
-        return "Node:"+str(self.pos)
+        return "Node:"+str(self.pos)+"Cost:"+str(self.cost)
+
+
+
+
 
 
 
@@ -95,18 +106,22 @@ def startPathfinding():
 
     targetNode = None
     while True:
-        print(frontier)
+        if len(frontier) == 0:
+            print("No path found")
+            return
+
         selectedNode = frontier[0]
-        node = None
-        i = 0
+        indexOfSelected = 0
         for i, node in enumerate(frontier):
-            if node.cost < selectedNode.cost: selectedNode = node
-        frontier.pop(i)
+            if node.cost < selectedNode.cost:
+                selectedNode = node
+                indexOfSelected = i
+        frontier.pop(indexOfSelected)
         
-        if node.pos == targetPos:
-            targetNode = node
+        if selectedNode.pos == targetPos:
+            targetNode = selectedNode
             break
-        node.process()
+        selectedNode.process()
     
     currentNode = targetNode.parent
     while currentNode.pos != agentPos:
@@ -115,6 +130,11 @@ def startPathfinding():
 
 
     threadRunning = False
+
+
+
+
+
 
 
 while True:
@@ -150,7 +170,7 @@ while True:
                             gameMap[xi][yi] = ENUM_PATH
             elif event.key == pygame.K_RETURN:
                 if threadRunning:
-                    print("The pathfinding is already running")
+                    print("Pathfinding already running")
                     continue
                 
                 if not (agentPos and targetPos):
@@ -159,6 +179,13 @@ while True:
                     
                 thread = Thread(target=startPathfinding)
                 thread.start()
+            elif event.key == pygame.K_r:
+                for xi, xv in enumerate(gameMap):
+                    for yi, yv in enumerate(x):
+                        if yv == ENUM_USED_PATH:
+                            gameMap[xi][yi] = ENUM_PATH
+
+
 
 
         if event.type == pygame.MOUSEBUTTONDOWN:
