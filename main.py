@@ -104,6 +104,7 @@ class Node:
 
 threadRunning = False
 def startPathfinding():
+    updateCost()
     global frontier, explored, found
     threadRunning = True
 
@@ -140,14 +141,7 @@ def startPathfinding():
 
 
 
-
-
-
-mouseDown = False
-while True:
-    screen.fill((25, 25, 25))
-
-    if mouseDown:
+def onMouseDown():
         mousePos = pygame.mouse.get_pos()
         tilePos = (int(mousePos[0]/20), int(mousePos[1]/20))
 
@@ -160,7 +154,16 @@ while True:
             if targetPos : gameMap[targetPos[0]][targetPos[1]] = ENUM_WALL
             targetPos = tilePos
 
-        updateCost()
+
+
+
+mouseDown = False
+while True:
+    screen.fill((25, 25, 25))
+
+    if mouseDown:
+        onMouseDown()
+
 
 
     for xi, xv in enumerate(gameMap):
@@ -206,10 +209,11 @@ while True:
             elif event.key == pygame.K_r:
                 clearUsedPaths()
 
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            mouseDown = True
         if event.type == pygame.MOUSEBUTTONUP:
             mouseDown = False
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouseDown = True
+            onMouseDown()
 
 
 
