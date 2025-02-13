@@ -142,17 +142,18 @@ def startPathfinding():
 
 
 def onMouseDown():
-        mousePos = pygame.mouse.get_pos()
-        tilePos = (int(mousePos[0]/20), int(mousePos[1]/20))
+    global agentPos, targetPos
+    mousePos = pygame.mouse.get_pos()
+    tilePos = (int(mousePos[0]/20), int(mousePos[1]/20))
 
-        gameMap[tilePos[0]][tilePos[1]] = paintmode
 
-        if paintmode == ENUM_AGENT:
-            if agentPos : gameMap[agentPos[0]][agentPos[1]] = ENUM_WALL
-            agentPos = tilePos
-        if paintmode == ENUM_TARGET:
-            if targetPos : gameMap[targetPos[0]][targetPos[1]] = ENUM_WALL
-            targetPos = tilePos
+    if paintmode == ENUM_AGENT:
+        if agentPos : gameMap[agentPos[0]][agentPos[1]] = ENUM_WALL
+        agentPos = tilePos
+    if paintmode == ENUM_TARGET:
+        if targetPos : gameMap[targetPos[0]][targetPos[1]] = ENUM_WALL
+        targetPos = tilePos
+    gameMap[tilePos[0]][tilePos[1]] = paintmode
 
 
 
