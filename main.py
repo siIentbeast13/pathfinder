@@ -15,7 +15,6 @@ ENUM_USED_PATH = 4
 
 screen = pygame.display.set_mode((1000, 1000))
 
-clock = pygame.time.Clock()
 
 gameMap = []
 for x in range(200):
@@ -107,4 +106,3 @@ while True:
         
     
     pygame.display.update()
-    clock.tick(60)
