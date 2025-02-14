@@ -86,7 +86,7 @@ class Node:
                 for node in frontier:
                     if inFrontier : break
                     inFrontier = node.pos == exploringPos
-                if exploringPos in explored or isWall: continue
+                if exploringPos in explored or isWall or inFrontier: continue
 
                 neighbours.append(exploringPos)
 
@@ -117,6 +117,7 @@ def startPathfinding():
             print("No path found")
             return
 
+        print(frontier)
         selectedNode = frontier[0]
         indexOfSelected = 0
         for i, node in enumerate(frontier):
@@ -124,6 +125,7 @@ def startPathfinding():
                 selectedNode = node
                 indexOfSelected = i
         frontier.pop(indexOfSelected)
+        print("Processing:",selectedNode)
         
         if selectedNode.pos == targetPos:
             targetNode = selectedNode
@@ -205,6 +207,7 @@ while True:
                     print("No agent or target found")
                     continue
                     
+                print("Starting pathfinding thread")
                 thread = Thread(target=startPathfinding)
                 thread.start()
             elif event.key == pygame.K_r:
